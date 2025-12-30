@@ -28,21 +28,39 @@ def test_copyright():
         cwd='.'
     )
 
-    # Parse output to check if errors are only for LICENSE or CONTRIBUTING.md
+    # Parse output to check if errors are only for allowed files
     if result.returncode != 0:
         output = result.stderr + result.stdout
-        # Extract error lines (lines containing file names and <unknown>)
+        # Extract error lines (lines containing file names with errors)
         lines = output.split('\n')
         error_files = []
         for line in lines:
-            if ':' in line and '<unknown>' in line:
+            if (':' in line and
+                    ('<unknown>' in line or
+                     'could not find copyright' in line.lower())):
                 # Extract filename before ':'
                 filename = line.split(':', 1)[0].strip()
                 error_files.append(filename)
 
-        # Check if all errors are for allowed files
-        allowed_files = ['LICENSE', 'CONTRIBUTING.md']
-        if error_files and all(f in allowed_files for f in error_files):
+        # Allowed files/directories that can have copyright errors
+        # (generated files, license files, etc.)
+        allowed_patterns = [
+            'LICENSE',
+            'CONTRIBUTING.md',
+            'build/',
+            'install/',
+            'log/',
+            '_local_setup_util',
+            'sitecustomize.py'
+        ]
+
+        # Check if all errors are for allowed files/directories
+        all_allowed = all(
+            any(pattern in filename for pattern in allowed_patterns)
+            for filename in error_files
+        )
+
+        if error_files and all_allowed:
             return  # Test passes if only allowed files have errors
 
     # Otherwise, assert no errors
