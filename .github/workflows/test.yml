@@ -35,14 +35,15 @@ jobs:
         required-ros-distributions: ${{ matrix.ros-distro }}
       continue-on-error: true
 
-    - name: Fix apt sources and update
+    - name: Fix ROS 2 repository and update
       run: |
-        # Clean up any problematic sources
-        sudo rm -f /etc/apt/sources.list.d/ros2-latest.list || true
-        # Re-add ROS 2 repository manually
-        sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/ros2-latest.list' || true
-        # Update package lists
-        sudo apt-get update
+        # Wait a moment for previous step to complete
+        sleep 2
+        # Fix any apt issues
+        sudo rm -f /var/lib/apt/lists/lock || true
+        sudo rm -f /var/cache/apt/archives/lock || true
+        # Retry apt-get update
+        sudo apt-get update || (sleep 5 && sudo apt-get update)
 
     - name: Install dependencies
       run: |
