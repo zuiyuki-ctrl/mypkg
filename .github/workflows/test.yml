@@ -33,6 +33,10 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y curl gnupg2 lsb-release
+        # Remove old/expired ROS 2 sources and keys
+        sudo rm -f /etc/apt/sources.list.d/ros2-latest.list
+        sudo rm -f /etc/apt/trusted.gpg.d/ros.gpg
+        sudo rm -f /usr/share/keyrings/ros-archive-keyring.gpg
         # Install new GPG key using modern method
         sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc -o /usr/share/keyrings/ros-archive-keyring.gpg
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2-latest.list > /dev/null
