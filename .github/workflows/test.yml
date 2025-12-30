@@ -1,0 +1,50 @@
+name: Test system_monitor package
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ros-distro: [humble, iron, jazzy]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install ROS 2 ${{ matrix.ros-distro }}
+      uses: ros-tooling/setup-ros@v0.5
+      with:
+        required-ros-distributions: ${{ matrix.ros-distro }}
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y python3-psutil
+
+    - name: Build package
+      run: |
+        source /opt/ros/${{ matrix.ros-distro }}/setup.bash
+        cd ${{ github.workspace }}
+        colcon build --packages-select system_monitor
+
+    - name: Test package
+      run: |
+        source /opt/ros/${{ matrix.ros-distro }}/setup.bash
+        source ${{ github.workspace }}/install/setup.bash
+        colcon test --packages-select system_monitor
+
+    - name: Check test results
+      run: |
+        source /opt/ros/${{ matrix.ros-distro }}/setup.bash
+        colcon test-result --verbose
+
