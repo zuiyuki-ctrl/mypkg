@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ament_copyright.main import main
+import subprocess
 import pytest
 
 
@@ -20,8 +20,6 @@ import pytest
 @pytest.mark.linter
 def test_copyright():
     """Test copyright headers."""
-    import subprocess
-    
     # Run ament_copyright and capture output
     result = subprocess.run(
         ['ament_copyright', '.', 'test'],
@@ -29,7 +27,7 @@ def test_copyright():
         text=True,
         cwd='.'
     )
-    
+
     # Parse output to check if errors are only for LICENSE or CONTRIBUTING.md
     if result.returncode != 0:
         output = result.stderr + result.stdout
@@ -41,11 +39,12 @@ def test_copyright():
                 # Extract filename before ':'
                 filename = line.split(':', 1)[0].strip()
                 error_files.append(filename)
-        
+
         # Check if all errors are for allowed files
         allowed_files = ['LICENSE', 'CONTRIBUTING.md']
         if error_files and all(f in allowed_files for f in error_files):
             return  # Test passes if only allowed files have errors
-    
+
     # Otherwise, assert no errors
-    assert result.returncode == 0, f'Found errors: {result.stderr}{result.stdout}'
+    error_msg = f'Found errors: {result.stderr}{result.stdout}'
+    assert result.returncode == 0, error_msg
