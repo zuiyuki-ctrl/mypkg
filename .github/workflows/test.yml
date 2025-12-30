@@ -29,27 +29,23 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install ROS 2 ${{ matrix.ros-distro }}
-      uses: ros-tooling/setup-ros@v0.6
-      with:
-        required-ros-distributions: ${{ matrix.ros-distro }}
-      continue-on-error: true
-
-    - name: Fix ROS 2 repository and update
+    - name: Set up ROS 2 GPG key
       run: |
-        # Wait a moment for previous step to complete
-        sleep 2
-        # Fix any apt issues
-        sudo rm -f /var/lib/apt/lists/lock || true
-        sudo rm -f /var/cache/apt/archives/lock || true
-        # Retry apt-get update
-        sudo apt-get update || (sleep 5 && sudo apt-get update)
+        sudo apt-get update
+        sudo apt-get install -y curl gnupg2 lsb-release
+        sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+        sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
+        sudo apt-get update
+
+    - name: Install ROS 2 ${{ matrix.ros-distro }}
+      run: |
+        sudo apt-get install -y ros-${{ matrix.ros-distro }}-desktop
+        sudo apt-get install -y python3-colcon-common-extensions
+        echo "source /opt/ros/${{ matrix.ros-distro }}/setup.bash" >> $GITHUB_ENV
 
     - name: Install dependencies
       run: |
-        sudo apt-get install -y \
-          python3-psutil \
-          python3-colcon-common-extensions
+        sudo apt-get install -y python3-psutil
 
     - name: Build package
       shell: bash
