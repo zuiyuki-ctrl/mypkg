@@ -20,11 +20,12 @@ This node monitors system resources (CPU, memory, disk usage) and publishes
 them as ROS 2 topics.
 """
 
+import time
+
+import psutil
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray, MultiArrayDimension
-import psutil
-import time
 
 
 class SystemMonitorNode(Node):

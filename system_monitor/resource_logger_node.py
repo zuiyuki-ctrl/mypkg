@@ -19,11 +19,12 @@ Resource Logger Node for ROS 2.
 This node subscribes to system resource topics and logs them to a file.
 """
 
+from datetime import datetime
+import os
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
-import os
-from datetime import datetime
 
 
 class ResourceLoggerNode(Node):
