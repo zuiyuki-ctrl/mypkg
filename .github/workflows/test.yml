@@ -12,24 +12,31 @@ jobs:
     strategy:
       matrix:
         ros-distro: [humble, iron, jazzy]
+        include:
+          - ros-distro: humble
+            ubuntu-version: '22.04'
+          - ros-distro: iron
+            ubuntu-version: '22.04'
+          - ros-distro: jazzy
+            ubuntu-version: '24.04'
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
     - name: Install ROS 2 ${{ matrix.ros-distro }}
-      uses: ros-tooling/setup-ros@v0.5
+      uses: ros-tooling/setup-ros@v0.6
       with:
         required-ros-distributions: ${{ matrix.ros-distro }}
 
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install -y python3-psutil
+        sudo apt-get update
+        sudo apt-get install -y python3-psutil python3-colcon-common-extensions
 
     - name: Build package
       run: |
