@@ -8,11 +8,18 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        ros-distro: [humble, iron, jazzy]
+        include:
+          - ros-distro: humble
+            ubuntu: ubuntu-22.04
+          - ros-distro: iron
+            ubuntu: ubuntu-22.04
+          - ros-distro: jazzy
+            ubuntu: ubuntu-24.04
+
+    runs-on: ${{ matrix.ubuntu }}
 
     steps:
     - uses: actions/checkout@v4
