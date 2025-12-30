@@ -29,19 +29,19 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Set up ROS 2 GPG key
+    - name: Set up ROS 2 GPG key and repository
       run: |
         sudo apt-get update
         sudo apt-get install -y curl gnupg2 lsb-release
-        sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-        sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
+        # Install new GPG key using modern method
+        sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc -o /usr/share/keyrings/ros-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2-latest.list > /dev/null
         sudo apt-get update
 
     - name: Install ROS 2 ${{ matrix.ros-distro }}
       run: |
         sudo apt-get install -y ros-${{ matrix.ros-distro }}-desktop
         sudo apt-get install -y python3-colcon-common-extensions
-        echo "source /opt/ros/${{ matrix.ros-distro }}/setup.bash" >> $GITHUB_ENV
 
     - name: Install dependencies
       run: |
