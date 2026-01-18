@@ -70,5 +70,6 @@ jobs:
       shell: bash
       run: |
         source /opt/ros/${{ matrix.ros-distro }}/setup.bash
-        colcon test-result --verbose
+        colcon test-result --verbose || true
+        colcon test-result
 
