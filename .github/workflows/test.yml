@@ -70,6 +70,10 @@ jobs:
       shell: bash
       run: |
         source /opt/ros/${{ matrix.ros-distro }}/setup.bash
-        colcon test-result --verbose || true
-        colcon test-result
+        colcon test-result --verbose
+        if [ $? -ne 0 ]; then
+          echo "Some tests failed. Showing detailed results:"
+          colcon test-result --all
+          exit 1
+        fi
 
