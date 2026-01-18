@@ -47,7 +47,6 @@ def test_copyright():
         # (generated files, license files, etc.)
         allowed_patterns = [
             'LICENSE',
-            'CONTRIBUTING.md',
             'build/',
             'install/',
             'log/',
