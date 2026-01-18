@@ -68,12 +68,20 @@ jobs:
 
     - name: Check test results
       shell: bash
+      continue-on-error: false
       run: |
         source /opt/ros/${{ matrix.ros-distro }}/setup.bash
+        # Check test results and capture exit code
+        set +e
         colcon test-result --verbose
-        if [ $? -ne 0 ]; then
-          echo "Some tests failed. Showing detailed results:"
-          colcon test-result --all
-          exit 1
+        test_result=$?
+        set -e
+        
+        if [ $test_result -ne 0 ]; then
+          echo "=== Test failures detected ==="
+          echo "Showing all test results:"
+          colcon test-result --all || true
+          echo "=== End of test results ==="
+          exit $test_result
         fi
 
